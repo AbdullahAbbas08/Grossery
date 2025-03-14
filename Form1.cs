@@ -1,0 +1,284 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Drawing;
+using System.Globalization;
+using System.Linq;
+using System.Windows.Forms;
+
+namespace Grossery
+{
+    public partial class Form1 : Form
+    {
+        private MarketEntities db;              // Your EF context
+        private float _posTotal = 0f;
+        private BindingSource _posBindingSource;
+        private List<PosItem> _posItems;
+
+        public Form1()
+        {
+            // Set culture to Arabic (Saudi Arabia), for instance
+            CultureInfo arCulture = new CultureInfo("ar-SA");
+            Thread.CurrentThread.CurrentCulture = arCulture;
+            Thread.CurrentThread.CurrentUICulture = arCulture;
+
+            InitializeComponent();
+
+            // Set DGV to begin edit on Enter (helps with scanners):
+            dataGridView1.EditMode = DataGridViewEditMode.EditOnEnter;
+
+            // Create the EF context
+            db = new MarketEntities();
+
+            // Create local POS list and BindingSource (optional for data-binding)
+            _posItems = new List<PosItem>();
+            _posBindingSource = new BindingSource { DataSource = _posItems };
+
+            // In this example, we’re manually controlling the DataGridView rows,
+            // so we won't do: dataGridView1.DataSource = _posBindingSource;
+
+            // Hook up needed events
+            this.Load += Form1_Load;
+            dataGridView1.CellEndEdit += dataGridView1_CellEndEdit;
+            dataGridView1.RowsAdded += dataGridView1_RowsAdded;
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            // Add an initial blank row
+            dataGridView1.Rows.Add();
+
+            // Focus the first row's barcode cell so scanning can begin
+            dataGridView1.CurrentCell = dataGridView1.Rows[0].Cells["barcode"];
+            dataGridView1.BeginEdit(true);
+        }
+
+        /// <summary>
+        /// Handle user finishing edit in any cell. 
+        /// If 'barcode' was edited, do DB lookup; 
+        /// If 'qtn' or 'price' changed, recalc total.
+        /// </summary>
+        private void dataGridView1_CellEndEdit(object sender, DataGridViewCellEventArgs e)
+        {
+            // Valid row/col?
+            if (e.RowIndex < 0 || e.ColumnIndex < 0) return;
+
+            var col = dataGridView1.Columns[e.ColumnIndex];
+            var row = dataGridView1.Rows[e.RowIndex];
+
+            // If user just edited 'barcode'
+            if (col.Name.Equals("barcode", StringComparison.OrdinalIgnoreCase))
+            {
+                string typedBarcode = Convert.ToString(row.Cells["barcode"].Value) ?? "";
+                typedBarcode = typedBarcode.Trim();
+
+                if (!string.IsNullOrEmpty(typedBarcode))
+                {
+                    // Lookup in DB
+                    var product = db.Products.FirstOrDefault(p => p.Parcode == typedBarcode);
+                    if (product != null)
+                    {
+                        // Fill row cells
+                        row.Cells["Name"].Value = product.Name;
+                        row.Cells["qtn"].Value = 1;
+                        row.Cells["price"].Value = product.Price;
+                        row.Cells["Column1"].Value = product.Price;  // total = price * 1
+
+                        // Recalc + grand total
+                        RecalculateRowTotal(e.RowIndex);
+                    }
+                    else
+                    {
+                        MessageBox.Show("Barcode not found!");
+                        // Optionally clear row
+                        row.Cells["Name"].Value = null;
+                        row.Cells["qtn"].Value = null;
+                        row.Cells["price"].Value = null;
+                        row.Cells["Column1"].Value = null;
+                    }
+
+                    // If this was the last row and we found a product, add a new row
+                    bool isLastRow = (e.RowIndex == dataGridView1.Rows.Count - 1);
+                    if (product != null && isLastRow)
+                    {
+                        dataGridView1.Rows.Add();
+                    }
+
+                    // Move focus to the next row's barcode cell so scanning can continue
+                    int nextRow = e.RowIndex + 1;
+                    if (nextRow < dataGridView1.Rows.Count)
+                    {
+                        this.BeginInvoke(new Action(() =>
+                        {
+                            dataGridView1.CurrentCell = dataGridView1.Rows[nextRow].Cells["barcode"];
+                            dataGridView1.BeginEdit(true);
+                        }));
+                    }
+                }
+            }
+            // If user edited 'qtn' or 'price', recalc total
+            else if (col.Name.Equals("qtn", StringComparison.OrdinalIgnoreCase) ||
+                     col.Name.Equals("price", StringComparison.OrdinalIgnoreCase))
+            {
+                RecalculateRowTotal(e.RowIndex);
+            }
+        }
+
+        /// <summary>
+        /// Whenever a new row is added, set the 'index' cell to row number (1-based).
+        /// </summary>
+        private void dataGridView1_RowsAdded(object sender, DataGridViewRowsAddedEventArgs e)
+        {
+            for (int i = e.RowIndex; i < e.RowIndex + e.RowCount; i++)
+            {
+                dataGridView1["index", i].Value = (i + 1).ToString();
+            }
+        }
+
+        private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex >= 0 && e.ColumnIndex >= 0)
+            {
+                if (dataGridView1.Columns[e.ColumnIndex].Name == "colRemove")
+                {
+                    // Make sure not to remove the new row
+                    if (!dataGridView1.Rows[e.RowIndex].IsNewRow)
+                    {
+                        dataGridView1.Rows.RemoveAt(e.RowIndex);
+
+                        // Reindex after removing
+                        ReIndexRows();
+                    }
+                }
+            }
+        }
+
+
+        private void ReIndexRows()
+        {
+            int displayIndex = 1;
+
+            for (int i = 0; i < dataGridView1.Rows.Count; i++)
+            {
+                DataGridViewRow row = dataGridView1.Rows[i];
+
+                // If row is new OR is empty, don't assign an index
+                if (row.IsNewRow || IsRowEmpty(row))
+                {
+                    row.Cells["index"].Value = "";
+                    continue;
+                }
+
+                // Otherwise, set index
+                row.Cells["index"].Value = displayIndex.ToString();
+                displayIndex++;
+            }
+        }
+
+
+        private bool IsRowEmpty(DataGridViewRow row)
+        {
+            // Decide which columns you consider for "empty" check.
+            // For example, skip the "index" column itself:
+            foreach (DataGridViewCell cell in row.Cells)
+            {
+                // Don’t check the index column
+                if (cell.OwningColumn.Name == "index")
+                    continue;
+
+                // If there's any non-empty cell, it's not empty
+                if (cell.Value != null && !string.IsNullOrWhiteSpace(cell.Value.ToString()))
+                {
+                    return false;
+                }
+            }
+
+            return true; // All other cells were blank or null
+        }
+
+
+
+
+        private void btnRemoveSelected_Click(object sender, EventArgs e)
+        {
+            // If there’s a valid current row
+            if (dataGridView1.CurrentRow != null && !dataGridView1.CurrentRow.IsNewRow)
+            {
+                // Remove it
+                dataGridView1.Rows.Remove(dataGridView1.CurrentRow);
+
+                // Update totals if needed
+                UpdateGrandTotal();
+            }
+            else
+            {
+                MessageBox.Show("لا يوجد صف محدد أو لا يمكن حذفه!", "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+        }
+
+
+        /// <summary>
+        /// Recalculate total for a single row and update the grand total.
+        /// </summary>
+        private void RecalculateRowTotal(int rowIndex)
+        {
+            if (rowIndex < 0 || rowIndex >= dataGridView1.Rows.Count) return;
+
+            var row = dataGridView1.Rows[rowIndex];
+            if (row.IsNewRow) return;  // skip new row
+
+            // Parse quantity
+            int qty = 0;
+            if (row.Cells["qtn"].Value != null)
+            {
+                int.TryParse(row.Cells["qtn"].Value.ToString(), out qty);
+            }
+
+            // Parse price
+            decimal priceVal = 0;
+            if (row.Cells["price"].Value != null)
+            {
+                decimal.TryParse(row.Cells["price"].Value.ToString(), out priceVal);
+            }
+
+            // total = price * qty
+            decimal lineTotal = priceVal * qty;
+            row.Cells["Column1"].Value = lineTotal;
+
+            // Update the grand total
+            UpdateGrandTotal();
+        }
+
+        /// <summary>
+        /// Loop through all rows, sum Column1, display in lblTotal.
+        /// </summary>
+        private void UpdateGrandTotal()
+        {
+            decimal sum = 0;
+            foreach (DataGridViewRow row in dataGridView1.Rows)
+            {
+                if (row.IsNewRow) continue;
+                if (row.Cells["Column1"].Value != null &&
+                    decimal.TryParse(row.Cells["Column1"].Value.ToString(), out decimal lineTotal))
+                {
+                    sum += lineTotal;
+                }
+            }
+
+            lblTotal.Text = $"الإجمالي: {sum}";
+        }
+
+    }
+
+    /// <summary>
+    /// Example POS item model if you want to do advanced binding.
+    /// </summary>
+    public class PosItem
+    {
+        public string Barcode { get; set; }
+        public string Name { get; set; }
+        public float Price { get; set; }
+        public int Quantity { get; set; }
+        public float ItemTotal { get; set; }
+    }
+}
