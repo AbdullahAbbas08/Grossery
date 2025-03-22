@@ -24,7 +24,6 @@ namespace Grossery
             Thread.CurrentThread.CurrentUICulture = arCulture;
 
             InitializeComponent();
-
             // Set DGV to begin edit on Enter (helps with scanners):
             dataGridView1.EditMode = DataGridViewEditMode.EditOnEnter;
 
@@ -42,7 +41,44 @@ namespace Grossery
             this.Load += Form1_Load;
             dataGridView1.CellEndEdit += dataGridView1_CellEndEdit;
             dataGridView1.RowsAdded += dataGridView1_RowsAdded;
+
+            // Ensure the form captures KeyDown before child controls.
+            this.KeyPreview = true;
+
+            // Attach an event handler for KeyDown
+            this.KeyDown += Form1_KeyDown;
+
+            textBox3.KeyDown += textBox3_KeyDown;
+            textBox2.KeyDown += textBox2_KeyDown;
+
+
         }
+
+        private void Form1_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Space)
+            {
+                // Clear the DataGridView
+                dataGridView1.Rows.Clear();
+
+                // Reset total
+                lblTotal2.Text = "0";
+
+                // Add one fresh row
+                dataGridView1.Rows.Add();
+
+                // Set focus to the first cell in 'barcode' column
+                if (dataGridView1.Rows.Count > 0)
+                {
+                    dataGridView1.CurrentCell = dataGridView1.Rows[0].Cells["barcode"];
+                    dataGridView1.BeginEdit(true);
+                }
+
+                // Mark key event as handled
+                e.Handled = true;
+            }
+        }
+
 
         private void Form1_Load(object sender, EventArgs e)
         {
@@ -130,28 +166,17 @@ namespace Grossery
         /// </summary>
         private void dataGridView1_RowsAdded(object sender, DataGridViewRowsAddedEventArgs e)
         {
-            for (int i = e.RowIndex; i < e.RowIndex + e.RowCount; i++)
-            {
-                dataGridView1["index", i].Value = (i + 1).ToString();
-            }
+            //for (int i = e.RowIndex; i < e.RowIndex + e.RowCount; i++)
+            //{
+            //    dataGridView1["index", i].Value = (i + 1).ToString();
+            //}
+
+            ReIndexRows();
         }
 
         private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.RowIndex >= 0 && e.ColumnIndex >= 0)
-            {
-                if (dataGridView1.Columns[e.ColumnIndex].Name == "colRemove")
-                {
-                    // Make sure not to remove the new row
-                    if (!dataGridView1.Rows[e.RowIndex].IsNewRow)
-                    {
-                        dataGridView1.Rows.RemoveAt(e.RowIndex);
 
-                        // Reindex after removing
-                        ReIndexRows();
-                    }
-                }
-            }
         }
 
 
@@ -161,20 +186,20 @@ namespace Grossery
 
             for (int i = 0; i < dataGridView1.Rows.Count; i++)
             {
-                DataGridViewRow row = dataGridView1.Rows[i];
+                // If you want to include the blank “new row,” leave as-is.
+                // If you do *not* want the new row to have an index, skip the last row:
+                // if (!dataGridView1.Rows[i].IsNewRow) 
+                // {
+                //     dataGridView1["index", i].Value = displayIndex.ToString();
+                //     displayIndex++;
+                // }
 
-                // If row is new OR is empty, don't assign an index
-                if (row.IsNewRow || IsRowEmpty(row))
-                {
-                    row.Cells["index"].Value = "";
-                    continue;
-                }
-
-                // Otherwise, set index
-                row.Cells["index"].Value = displayIndex.ToString();
+                // Otherwise, simply always index:
+                dataGridView1["index", i].Value = displayIndex.ToString();
                 displayIndex++;
             }
         }
+
 
 
         private bool IsRowEmpty(DataGridViewRow row)
@@ -273,6 +298,109 @@ namespace Grossery
         {
 
         }
+
+        private void dataGridView1_CellContentClick_1(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex >= 0 && e.ColumnIndex >= 0)
+            {
+                if (dataGridView1.Columns[e.ColumnIndex].Name == "colRemove")
+                {
+                    // Make sure not to remove the new row
+                    if (!dataGridView1.Rows[e.RowIndex].IsNewRow)
+                    {
+                        dataGridView1.Rows.RemoveAt(e.RowIndex);
+
+                        // Reindex after removing
+                        ReIndexRows();
+                    }
+                }
+            }
+        }
+
+        private void AddToTotal()
+        {
+            if (decimal.TryParse(lblTotal2.Text, out decimal currentTotal) &&
+                decimal.TryParse(textBox3.Text, out decimal addAmount))
+            {
+                decimal newTotal = currentTotal + addAmount;
+                lblTotal2.Text = newTotal.ToString();
+                textBox3.Text = "";
+            }
+        }
+
+        private void SubtractFromTotal()
+        {
+            if (decimal.TryParse(lblTotal2.Text, out decimal currentTotal) &&
+                decimal.TryParse(textBox2.Text, out decimal subtractAmount))
+            {
+                decimal newTotal = currentTotal - subtractAmount;
+                lblTotal2.Text = newTotal.ToString();
+                textBox2.Text = "";
+            }
+        }
+
+
+        private void label3_Click(object sender, EventArgs e)
+        {
+            AddToTotal();
+        }
+
+        private void label6_Click(object sender, EventArgs e)
+        {
+            SubtractFromTotal();
+        }
+
+        private void textBox3_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                AddToTotal();
+                e.Handled = true;
+                e.SuppressKeyPress = true; // prevent ding sound
+            }
+        }
+
+        private void textBox2_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                SubtractFromTotal();
+                e.Handled = true;
+                e.SuppressKeyPress = true;
+            }
+        }
+
+
+        //private void label3_Click(object sender, EventArgs e)
+        //{
+        //    if (decimal.TryParse(lblTotal2.Text, out decimal currentTotal) &&
+        //        decimal.TryParse(textBox3.Text, out decimal addAmount))
+        //    {
+        //        decimal newTotal = currentTotal + addAmount;
+        //        lblTotal2.Text = newTotal.ToString();
+        //        textBox3.Text = "";
+        //    }
+        //    else
+        //    {
+        //        //MessageBox.Show("تأكد من إدخال رقم صالح في المبلغ للإضافة", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        //    }
+        //}
+
+        //private void label6_Click(object sender, EventArgs e)
+        //{
+        //    if (decimal.TryParse(lblTotal2.Text, out decimal currentTotal) &&
+        //        decimal.TryParse(textBox2.Text, out decimal subtractAmount))
+        //    {
+        //        decimal newTotal = currentTotal - subtractAmount;
+        //        lblTotal2.Text = newTotal.ToString();
+        //        textBox2.Text = "";
+        //    }
+        //    else
+        //    {
+        //        //MessageBox.Show("تأكد من إدخال رقم صالح في المبلغ للخصم", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        //    }
+        //}
+
     }
 
     /// <summary>
