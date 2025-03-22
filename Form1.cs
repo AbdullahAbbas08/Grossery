@@ -14,6 +14,7 @@ namespace Grossery
         private float _posTotal = 0f;
         private BindingSource _posBindingSource;
         private List<PosItem> _posItems;
+        private List<Product> Products;
 
         public Form1()
         {
@@ -29,7 +30,7 @@ namespace Grossery
 
             // Create the EF context
             db = new MarketEntities();
-
+            Products = db.Products.ToList();
             // Create local POS list and BindingSource (optional for data-binding)
             _posItems = new List<PosItem>();
             _posBindingSource = new BindingSource { DataSource = _posItems };
@@ -75,7 +76,7 @@ namespace Grossery
                 if (!string.IsNullOrEmpty(typedBarcode))
                 {
                     // Lookup in DB
-                    var product = db.Products.FirstOrDefault(p => p.Parcode == typedBarcode);
+                    var product = Products.FirstOrDefault(p => p.Parcode == typedBarcode);
                     if (product != null)
                     {
                         // Fill row cells
@@ -250,7 +251,7 @@ namespace Grossery
         }
 
         /// <summary>
-        /// Loop through all rows, sum Column1, display in lblTotal.
+        /// Loop through all rows, sum Column1, display in lblTotal2.
         /// </summary>
         private void UpdateGrandTotal()
         {
@@ -265,9 +266,13 @@ namespace Grossery
                 }
             }
 
-            lblTotal.Text = $"الإجمالي: {sum}";
+            lblTotal2.Text = sum.ToString();
         }
 
+        private void tableLayoutPanel1_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
     }
 
     /// <summary>
