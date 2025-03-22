@@ -51,6 +51,10 @@ namespace Grossery
             textBox3.KeyDown += textBox3_KeyDown;
             textBox2.KeyDown += textBox2_KeyDown;
 
+            textBox2.KeyPress += AllowOnlyDecimalInput;
+            textBox3.KeyPress += AllowOnlyDecimalInput;
+
+
 
         }
 
@@ -58,26 +62,43 @@ namespace Grossery
         {
             if (e.KeyCode == Keys.Space)
             {
-                // Clear the DataGridView
                 dataGridView1.Rows.Clear();
-
-                // Reset total
-                lblTotal2.Text = "0";
-
-                // Add one fresh row
+                lblTotal2.Text = "";
+                textBox2.Text = "";
+                manualAddedAmount = 0;
+                manualSubtractedAmount = 0;
                 dataGridView1.Rows.Add();
-
-                // Set focus to the first cell in 'barcode' column
-                if (dataGridView1.Rows.Count > 0)
-                {
-                    dataGridView1.CurrentCell = dataGridView1.Rows[0].Cells["barcode"];
-                    dataGridView1.BeginEdit(true);
-                }
-
-                // Mark key event as handled
+                dataGridView1.CurrentCell = dataGridView1.Rows[0].Cells["barcode"];
+                dataGridView1.BeginEdit(true);
                 e.Handled = true;
             }
         }
+
+
+        //private void Form1_KeyDown(object sender, KeyEventArgs e)
+        //{
+        //    if (e.KeyCode == Keys.Space)
+        //    {
+        //        // Clear the DataGridView
+        //        dataGridView1.Rows.Clear();
+
+        //        // Reset total
+        //        lblTotal2.Text = "0";
+
+        //        // Add one fresh row
+        //        dataGridView1.Rows.Add();
+
+        //        // Set focus to the first cell in 'barcode' column
+        //        if (dataGridView1.Rows.Count > 0)
+        //        {
+        //            dataGridView1.CurrentCell = dataGridView1.Rows[0].Cells["barcode"];
+        //            dataGridView1.BeginEdit(true);
+        //        }
+
+        //        // Mark key event as handled
+        //        e.Handled = true;
+        //    }
+        //}
 
 
         private void Form1_Load(object sender, EventArgs e)
@@ -200,26 +221,34 @@ namespace Grossery
             }
         }
 
-
-
-        private bool IsRowEmpty(DataGridViewRow row)
+        private void AllowOnlyDecimalInput(object sender, KeyPressEventArgs e)
         {
-            // Decide which columns you consider for "empty" check.
-            // For example, skip the "index" column itself:
-            foreach (DataGridViewCell cell in row.Cells)
-            {
-                // Don’t check the index column
-                if (cell.OwningColumn.Name == "index")
-                    continue;
+            TextBox textBox = sender as TextBox;
+            string currentText = textBox.Text;
 
-                // If there's any non-empty cell, it's not empty
-                if (cell.Value != null && !string.IsNullOrWhiteSpace(cell.Value.ToString()))
-                {
-                    return false;
-                }
+            // Get current culture's decimal separator
+            string decimalSeparator = CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator;
+
+            // If user presses '.' but current culture uses ',' — allow it and replace with ','
+            if (e.KeyChar == '.' && decimalSeparator != ".")
+            {
+                e.KeyChar = Convert.ToChar(decimalSeparator); // Replace '.' with ','
             }
 
-            return true; // All other cells were blank or null
+            // Allow control keys (e.g. Backspace)
+            if (char.IsControl(e.KeyChar))
+                return;
+
+            // Allow digits
+            if (char.IsDigit(e.KeyChar))
+                return;
+
+            // Allow one decimal separator only
+            if (e.KeyChar.ToString() == decimalSeparator && !currentText.Contains(decimalSeparator))
+                return;
+
+            // Block all other input
+            e.Handled = true;
         }
 
 
@@ -275,15 +304,38 @@ namespace Grossery
             UpdateGrandTotal();
         }
 
-        /// <summary>
-        /// Loop through all rows, sum Column1, display in lblTotal2.
-        /// </summary>
+        private decimal manualAddedAmount = 0;
+        private decimal manualSubtractedAmount = 0;
+
+
+        private void AddToTotal()
+        {
+            if (decimal.TryParse(textBox3.Text, out decimal addAmount))
+            {
+                manualAddedAmount += addAmount;
+                textBox3.Text = "";
+                UpdateGrandTotal();
+            }
+        }
+        //private void AddToTotal()
+        //{
+        //    if (decimal.TryParse(lblTotal2.Text, out decimal currentTotal) &&
+        //        decimal.TryParse(textBox3.Text, out decimal addAmount))
+        //    {
+        //        decimal newTotal = currentTotal + addAmount;
+        //        lblTotal2.Text = newTotal.ToString();
+        //        textBox3.Text = "";
+        //    }
+        //}
+
         private void UpdateGrandTotal()
         {
             decimal sum = 0;
+
             foreach (DataGridViewRow row in dataGridView1.Rows)
             {
                 if (row.IsNewRow) continue;
+
                 if (row.Cells["Column1"].Value != null &&
                     decimal.TryParse(row.Cells["Column1"].Value.ToString(), out decimal lineTotal))
                 {
@@ -291,8 +343,14 @@ namespace Grossery
                 }
             }
 
+            // Add manual additions and subtract manual deductions
+            sum += manualAddedAmount;
+            sum -= manualSubtractedAmount;
+
             lblTotal2.Text = sum.ToString();
         }
+
+
 
         private void tableLayoutPanel1_Paint(object sender, PaintEventArgs e)
         {
@@ -312,32 +370,27 @@ namespace Grossery
 
                         // Reindex after removing
                         ReIndexRows();
+
+                        // ✅ Update the total after row removal
+                        UpdateGrandTotal();
                     }
                 }
             }
         }
 
-        private void AddToTotal()
-        {
-            if (decimal.TryParse(lblTotal2.Text, out decimal currentTotal) &&
-                decimal.TryParse(textBox3.Text, out decimal addAmount))
-            {
-                decimal newTotal = currentTotal + addAmount;
-                lblTotal2.Text = newTotal.ToString();
-                textBox3.Text = "";
-            }
-        }
+
+
 
         private void SubtractFromTotal()
         {
-            if (decimal.TryParse(lblTotal2.Text, out decimal currentTotal) &&
-                decimal.TryParse(textBox2.Text, out decimal subtractAmount))
+            if (decimal.TryParse(textBox2.Text, out decimal subtractAmount))
             {
-                decimal newTotal = currentTotal - subtractAmount;
-                lblTotal2.Text = newTotal.ToString();
+                manualSubtractedAmount += subtractAmount;
                 textBox2.Text = "";
+                UpdateGrandTotal();
             }
         }
+
 
 
         private void label3_Click(object sender, EventArgs e)
