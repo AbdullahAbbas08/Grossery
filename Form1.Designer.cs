@@ -457,7 +457,6 @@ namespace Grossery
             ClientSize = new Size(1209, 775);
             Controls.Add(tabControl1);
             Font = new Font("Segoe UI", 14F, FontStyle.Regular, GraphicsUnit.Point);
-            Name = "Form1";
             RightToLeft = RightToLeft.Yes;
             RightToLeftLayout = true;
             StartPosition = FormStartPosition.CenterScreen;
