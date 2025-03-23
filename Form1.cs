@@ -48,15 +48,32 @@ namespace Grossery
             // Attach an event handler for KeyDown
             this.KeyDown += Form1_KeyDown;
 
-            textBox3.KeyDown += textBox3_KeyDown;
-            textBox2.KeyDown += textBox2_KeyDown;
+            //textBox3.KeyDown += textBox3_KeyDown;
+            //textBox2.KeyDown += textBox2_KeyDown;
 
-            textBox2.KeyPress += AllowOnlyDecimalInput;
-            textBox3.KeyPress += AllowOnlyDecimalInput;
+            //textBox2.KeyPress += AllowOnlyDecimalInput;
+            //textBox3.KeyPress += AllowOnlyDecimalInput;
+            dataGridView1.CellBeginEdit += dataGridView1_CellBeginEdit;
+
 
 
 
         }
+
+        private void dataGridView1_CellBeginEdit(object sender, DataGridViewCellCancelEventArgs e)
+        {
+            if (dataGridView1.Columns[e.ColumnIndex].Name == "Column1")
+            {
+                var barcodeCell = dataGridView1.Rows[e.RowIndex].Cells["barcode"];
+                string barcode = barcodeCell?.Value?.ToString();
+
+                if (!string.IsNullOrWhiteSpace(barcode) && Products.Any(p => p.Parcode == barcode))
+                {
+                    e.Cancel = true; // Prevent edit if barcode is found
+                }
+            }
+        }
+
 
         private void Form1_KeyDown(object sender, KeyEventArgs e)
         {
@@ -64,7 +81,7 @@ namespace Grossery
             {
                 dataGridView1.Rows.Clear();
                 lblTotal2.Text = "";
-                textBox2.Text = "";
+                //textBox2.Text = "";
                 manualAddedAmount = 0;
                 manualSubtractedAmount = 0;
                 dataGridView1.Rows.Add();
@@ -127,42 +144,42 @@ namespace Grossery
             // If user just edited 'barcode'
             if (col.Name.Equals("barcode", StringComparison.OrdinalIgnoreCase))
             {
-                string typedBarcode = Convert.ToString(row.Cells["barcode"].Value) ?? "";
-                typedBarcode = typedBarcode.Trim();
+                string typedBarcode = Convert.ToString(row.Cells["barcode"].Value)?.Trim() ?? "";
 
                 if (!string.IsNullOrEmpty(typedBarcode))
                 {
-                    // Lookup in DB
                     var product = Products.FirstOrDefault(p => p.Parcode == typedBarcode);
                     if (product != null)
                     {
-                        // Fill row cells
+                        // Fill product info
                         row.Cells["Name"].Value = product.Name;
                         row.Cells["qtn"].Value = 1;
                         row.Cells["price"].Value = product.Price;
-                        row.Cells["Column1"].Value = product.Price;  // total = price * 1
+                        row.Cells["Column1"].Value = product.Price;
 
-                        // Recalc + grand total
+                        // Recalculate totals
                         RecalculateRowTotal(e.RowIndex);
+
+                        // Optionally lock manual editing
+                        row.Cells["Column1"].ReadOnly = true;
                     }
                     else
                     {
                         MessageBox.Show("Barcode not found!");
-                        // Optionally clear row
                         row.Cells["Name"].Value = null;
                         row.Cells["qtn"].Value = null;
                         row.Cells["price"].Value = null;
-                        row.Cells["Column1"].Value = null;
+                        row.Cells["Column1"].Value = 0;  // safer than null
+                        row.Cells["Column1"].ReadOnly = false;
                     }
 
-                    // If this was the last row and we found a product, add a new row
-                    bool isLastRow = (e.RowIndex == dataGridView1.Rows.Count - 1);
-                    if (product != null && isLastRow)
+                    // Add new row if at bottom and product found
+                    if (product != null && e.RowIndex == dataGridView1.Rows.Count - 1)
                     {
                         dataGridView1.Rows.Add();
                     }
 
-                    // Move focus to the next row's barcode cell so scanning can continue
+                    // Focus next row’s barcode cell
                     int nextRow = e.RowIndex + 1;
                     if (nextRow < dataGridView1.Rows.Count)
                     {
@@ -174,13 +191,28 @@ namespace Grossery
                     }
                 }
             }
-            // If user edited 'qtn' or 'price', recalc total
             else if (col.Name.Equals("qtn", StringComparison.OrdinalIgnoreCase) ||
                      col.Name.Equals("price", StringComparison.OrdinalIgnoreCase))
             {
                 RecalculateRowTotal(e.RowIndex);
             }
+            else if (col.Name == "Column1")
+            {
+                // Allow manual total input only when barcode is not valid
+                string barcode = row.Cells["barcode"].Value?.ToString()?.Trim();
+                if (string.IsNullOrWhiteSpace(barcode) || !Products.Any(p => p.Parcode == barcode))
+                {
+                    row.Cells["Column1"].ReadOnly = false;
+                    UpdateGrandTotal();
+                }
+                else
+                {
+                    // Prevent accidental overwrite
+                    row.Cells["Column1"].Value = row.Cells["price"].Value;
+                }
+            }
         }
+
 
         /// <summary>
         /// Whenever a new row is added, set the 'index' cell to row number (1-based).
@@ -308,15 +340,15 @@ namespace Grossery
         private decimal manualSubtractedAmount = 0;
 
 
-        private void AddToTotal()
-        {
-            if (decimal.TryParse(textBox3.Text, out decimal addAmount))
-            {
-                manualAddedAmount += addAmount;
-                textBox3.Text = "";
-                UpdateGrandTotal();
-            }
-        }
+        //private void AddToTotal()
+        //{
+        //    if (decimal.TryParse(textBox3.Text, out decimal addAmount))
+        //    {
+        //        manualAddedAmount += addAmount;
+        //        textBox3.Text = "";
+        //        UpdateGrandTotal();
+        //    }
+        //}
         //private void AddToTotal()
         //{
         //    if (decimal.TryParse(lblTotal2.Text, out decimal currentTotal) &&
@@ -361,17 +393,14 @@ namespace Grossery
         {
             if (e.RowIndex >= 0 && e.ColumnIndex >= 0)
             {
-                if (dataGridView1.Columns[e.ColumnIndex].Name == "colRemove")
+                var columnName = dataGridView1.Columns[e.ColumnIndex].Name;
+
+                if (columnName == "colRemove" || columnName == "colRemoveStart")
                 {
-                    // Make sure not to remove the new row
                     if (!dataGridView1.Rows[e.RowIndex].IsNewRow)
                     {
                         dataGridView1.Rows.RemoveAt(e.RowIndex);
-
-                        // Reindex after removing
                         ReIndexRows();
-
-                        // ✅ Update the total after row removal
                         UpdateGrandTotal();
                     }
                 }
@@ -381,47 +410,48 @@ namespace Grossery
 
 
 
-        private void SubtractFromTotal()
-        {
-            if (decimal.TryParse(textBox2.Text, out decimal subtractAmount))
-            {
-                manualSubtractedAmount += subtractAmount;
-                textBox2.Text = "";
-                UpdateGrandTotal();
-            }
-        }
+
+        //private void SubtractFromTotal()
+        //{
+        //    if (decimal.TryParse(textBox2.Text, out decimal subtractAmount))
+        //    {
+        //        manualSubtractedAmount += subtractAmount;
+        //        textBox2.Text = "";
+        //        UpdateGrandTotal();
+        //    }
+        //}
 
 
 
-        private void label3_Click(object sender, EventArgs e)
-        {
-            AddToTotal();
-        }
+        //private void label3_Click(object sender, EventArgs e)
+        //{
+        //    AddToTotal();
+        //}
 
-        private void label6_Click(object sender, EventArgs e)
-        {
-            SubtractFromTotal();
-        }
+        //private void label6_Click(object sender, EventArgs e)
+        //{
+        //    SubtractFromTotal();
+        //}
 
-        private void textBox3_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Enter)
-            {
-                AddToTotal();
-                e.Handled = true;
-                e.SuppressKeyPress = true; // prevent ding sound
-            }
-        }
+        //private void textBox3_KeyDown(object sender, KeyEventArgs e)
+        //{
+        //    if (e.KeyCode == Keys.Enter)
+        //    {
+        //        AddToTotal();
+        //        e.Handled = true;
+        //        e.SuppressKeyPress = true; // prevent ding sound
+        //    }
+        //}
 
-        private void textBox2_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Enter)
-            {
-                SubtractFromTotal();
-                e.Handled = true;
-                e.SuppressKeyPress = true;
-            }
-        }
+        //private void textBox2_KeyDown(object sender, KeyEventArgs e)
+        //{
+        //    if (e.KeyCode == Keys.Enter)
+        //    {
+        //        SubtractFromTotal();
+        //        e.Handled = true;
+        //        e.SuppressKeyPress = true;
+        //    }
+        //}
 
 
         //private void label3_Click(object sender, EventArgs e)

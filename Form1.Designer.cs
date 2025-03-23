@@ -24,20 +24,20 @@ namespace Grossery
 
         private TabControl tabControl1;
         private TabPage tabPage1;
-        private TabPage tabPage2;
         // In Form1.Designer.cs
 
         private void InitializeComponent()
         {
             DataGridViewCellStyle dataGridViewCellStyle1 = new DataGridViewCellStyle();
             DataGridViewCellStyle dataGridViewCellStyle2 = new DataGridViewCellStyle();
-            DataGridViewCellStyle dataGridViewCellStyle7 = new DataGridViewCellStyle();
             DataGridViewCellStyle dataGridViewCellStyle8 = new DataGridViewCellStyle();
             DataGridViewCellStyle dataGridViewCellStyle9 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle10 = new DataGridViewCellStyle();
             DataGridViewCellStyle dataGridViewCellStyle3 = new DataGridViewCellStyle();
             DataGridViewCellStyle dataGridViewCellStyle4 = new DataGridViewCellStyle();
             DataGridViewCellStyle dataGridViewCellStyle5 = new DataGridViewCellStyle();
             DataGridViewCellStyle dataGridViewCellStyle6 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle7 = new DataGridViewCellStyle();
             tabControl1 = new TabControl();
             tabPage1 = new TabPage();
             tableLayoutPanel1 = new TableLayoutPanel();
@@ -45,18 +45,14 @@ namespace Grossery
             index = new DataGridViewTextBoxColumn();
             barcode = new DataGridViewTextBoxColumn();
             Name = new DataGridViewTextBoxColumn();
+            colRemoveStart = new DataGridViewButtonColumn();
             qtn = new DataGridViewTextBoxColumn();
             price = new DataGridViewTextBoxColumn();
             Column1 = new DataGridViewTextBoxColumn();
             colRemove = new DataGridViewButtonColumn();
             tableLayoutPanel2 = new TableLayoutPanel();
-            textBox3 = new TextBox();
-            label3 = new Label();
             label4 = new Label();
             lblTotal2 = new Label();
-            label6 = new Label();
-            textBox2 = new TextBox();
-            tabPage2 = new TabPage();
             tableLayoutPanel3 = new TableLayoutPanel();
             label1 = new Label();
             tableLayoutPanel4 = new TableLayoutPanel();
@@ -79,7 +75,6 @@ namespace Grossery
             // tabControl1
             // 
             tabControl1.Controls.Add(tabPage1);
-            tabControl1.Controls.Add(tabPage2);
             tabControl1.Cursor = Cursors.Hand;
             tabControl1.Dock = DockStyle.Fill;
             tabControl1.Location = new Point(0, 0);
@@ -97,7 +92,7 @@ namespace Grossery
             tabPage1.Padding = new Padding(3);
             tabPage1.Size = new Size(1201, 737);
             tabPage1.TabIndex = 0;
-            tabPage1.Text = "tabPage1";
+            tabPage1.Text = "أحسب";
             tabPage1.UseVisualStyleBackColor = true;
             // 
             // tableLayoutPanel1
@@ -110,20 +105,20 @@ namespace Grossery
             tableLayoutPanel1.Location = new Point(3, 3);
             tableLayoutPanel1.Name = "tableLayoutPanel1";
             tableLayoutPanel1.RowCount = 2;
-            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 93.57045F));
-            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 6.42954874F));
+            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 82.48974F));
+            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 17.51026F));
             tableLayoutPanel1.Size = new Size(1195, 731);
             tableLayoutPanel1.TabIndex = 0;
             // 
             // dataGridView1
             // 
-            dataGridViewCellStyle1.Font = new Font("Microsoft Sans Serif", 14.25F, FontStyle.Regular, GraphicsUnit.Point);
+            dataGridViewCellStyle1.Font = new Font("Microsoft Sans Serif", 18F, FontStyle.Regular, GraphicsUnit.Point);
             dataGridViewCellStyle1.Padding = new Padding(2);
             dataGridView1.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
             dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
             dataGridViewCellStyle2.Alignment = DataGridViewContentAlignment.MiddleCenter;
             dataGridViewCellStyle2.BackColor = SystemColors.Control;
-            dataGridViewCellStyle2.Font = new Font("Segoe UI", 14F, FontStyle.Regular, GraphicsUnit.Point);
+            dataGridViewCellStyle2.Font = new Font("Segoe UI", 18F, FontStyle.Regular, GraphicsUnit.Point);
             dataGridViewCellStyle2.ForeColor = SystemColors.WindowText;
             dataGridViewCellStyle2.Padding = new Padding(2);
             dataGridViewCellStyle2.SelectionBackColor = SystemColors.Highlight;
@@ -131,37 +126,37 @@ namespace Grossery
             dataGridViewCellStyle2.WrapMode = DataGridViewTriState.False;
             dataGridView1.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
             dataGridView1.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridView1.Columns.AddRange(new DataGridViewColumn[] { index, barcode, Name, qtn, price, Column1, colRemove });
-            dataGridViewCellStyle7.Alignment = DataGridViewContentAlignment.MiddleCenter;
-            dataGridViewCellStyle7.BackColor = SystemColors.Window;
-            dataGridViewCellStyle7.Font = new Font("Segoe UI", 15.75F, FontStyle.Regular, GraphicsUnit.Point);
-            dataGridViewCellStyle7.ForeColor = SystemColors.ControlText;
-            dataGridViewCellStyle7.Padding = new Padding(10);
-            dataGridViewCellStyle7.SelectionBackColor = SystemColors.Highlight;
-            dataGridViewCellStyle7.SelectionForeColor = SystemColors.HighlightText;
-            dataGridViewCellStyle7.WrapMode = DataGridViewTriState.False;
-            dataGridView1.DefaultCellStyle = dataGridViewCellStyle7;
+            dataGridView1.Columns.AddRange(new DataGridViewColumn[] { index, barcode, Name, colRemoveStart, qtn, price, Column1, colRemove });
+            dataGridViewCellStyle8.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle8.BackColor = SystemColors.Window;
+            dataGridViewCellStyle8.Font = new Font("Segoe UI", 15.75F, FontStyle.Regular, GraphicsUnit.Point);
+            dataGridViewCellStyle8.ForeColor = SystemColors.ControlText;
+            dataGridViewCellStyle8.Padding = new Padding(10);
+            dataGridViewCellStyle8.SelectionBackColor = SystemColors.Highlight;
+            dataGridViewCellStyle8.SelectionForeColor = SystemColors.HighlightText;
+            dataGridViewCellStyle8.WrapMode = DataGridViewTriState.False;
+            dataGridView1.DefaultCellStyle = dataGridViewCellStyle8;
             dataGridView1.Dock = DockStyle.Fill;
             dataGridView1.Location = new Point(3, 3);
             dataGridView1.Name = "dataGridView1";
-            dataGridViewCellStyle8.Alignment = DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle8.BackColor = SystemColors.Control;
-            dataGridViewCellStyle8.Font = new Font("Segoe UI", 14F, FontStyle.Regular, GraphicsUnit.Point);
-            dataGridViewCellStyle8.ForeColor = SystemColors.WindowText;
-            dataGridViewCellStyle8.Padding = new Padding(2);
-            dataGridViewCellStyle8.SelectionBackColor = SystemColors.Highlight;
-            dataGridViewCellStyle8.SelectionForeColor = SystemColors.HighlightText;
-            dataGridViewCellStyle8.WrapMode = DataGridViewTriState.True;
-            dataGridView1.RowHeadersDefaultCellStyle = dataGridViewCellStyle8;
-            dataGridViewCellStyle9.Alignment = DataGridViewContentAlignment.MiddleCenter;
-            dataGridViewCellStyle9.Font = new Font("Microsoft Sans Serif", 14.25F, FontStyle.Regular, GraphicsUnit.Point);
-            dataGridViewCellStyle9.ForeColor = Color.Black;
-            dataGridViewCellStyle9.Padding = new Padding(10);
-            dataGridView1.RowsDefaultCellStyle = dataGridViewCellStyle9;
+            dataGridViewCellStyle9.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle9.BackColor = SystemColors.Control;
+            dataGridViewCellStyle9.Font = new Font("Segoe UI", 18F, FontStyle.Regular, GraphicsUnit.Point);
+            dataGridViewCellStyle9.ForeColor = SystemColors.WindowText;
+            dataGridViewCellStyle9.Padding = new Padding(2);
+            dataGridViewCellStyle9.SelectionBackColor = SystemColors.Highlight;
+            dataGridViewCellStyle9.SelectionForeColor = SystemColors.HighlightText;
+            dataGridViewCellStyle9.WrapMode = DataGridViewTriState.True;
+            dataGridView1.RowHeadersDefaultCellStyle = dataGridViewCellStyle9;
+            dataGridViewCellStyle10.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle10.Font = new Font("Microsoft Sans Serif", 14.25F, FontStyle.Regular, GraphicsUnit.Point);
+            dataGridViewCellStyle10.ForeColor = Color.Black;
+            dataGridViewCellStyle10.Padding = new Padding(10);
+            dataGridView1.RowsDefaultCellStyle = dataGridViewCellStyle10;
             dataGridView1.RowTemplate.DefaultCellStyle.Font = new Font("Microsoft Sans Serif", 14.25F, FontStyle.Regular, GraphicsUnit.Point);
             dataGridView1.RowTemplate.DefaultCellStyle.Padding = new Padding(5);
-            dataGridView1.RowTemplate.Height = 40;
-            dataGridView1.Size = new Size(1189, 678);
+            dataGridView1.RowTemplate.Height = 60;
+            dataGridView1.Size = new Size(1189, 597);
             dataGridView1.TabIndex = 17;
             dataGridView1.CellContentClick += dataGridView1_CellContentClick_1;
             // 
@@ -194,17 +189,34 @@ namespace Grossery
             Name.Name = "Name";
             Name.ReadOnly = true;
             // 
+            // colRemoveStart
+            // 
+            dataGridViewCellStyle5.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle5.BackColor = Color.Red;
+            dataGridViewCellStyle5.Font = new Font("Microsoft Sans Serif", 14.25F, FontStyle.Bold, GraphicsUnit.Point);
+            dataGridViewCellStyle5.ForeColor = Color.White;
+            dataGridViewCellStyle5.Padding = new Padding(2);
+            dataGridViewCellStyle5.SelectionBackColor = Color.Red;
+            dataGridViewCellStyle5.SelectionForeColor = Color.White;
+            colRemoveStart.DefaultCellStyle = dataGridViewCellStyle5;
+            colRemoveStart.FlatStyle = FlatStyle.Flat;
+            colRemoveStart.HeaderText = "أحذف";
+            colRemoveStart.Name = "colRemoveStart";
+            colRemoveStart.Text = "✖";
+            colRemoveStart.UseColumnTextForButtonValue = true;
+            colRemoveStart.Width = 67;
+            // 
             // qtn
             // 
             qtn.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            dataGridViewCellStyle5.Alignment = DataGridViewContentAlignment.MiddleCenter;
-            dataGridViewCellStyle5.BackColor = Color.YellowGreen;
-            dataGridViewCellStyle5.Font = new Font("Microsoft Sans Serif", 8.25F, FontStyle.Bold, GraphicsUnit.Point);
-            dataGridViewCellStyle5.ForeColor = Color.FromArgb(224, 224, 224);
-            dataGridViewCellStyle5.Padding = new Padding(1);
-            dataGridViewCellStyle5.SelectionBackColor = Color.Black;
-            dataGridViewCellStyle5.SelectionForeColor = Color.FromArgb(224, 224, 224);
-            qtn.DefaultCellStyle = dataGridViewCellStyle5;
+            dataGridViewCellStyle6.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle6.BackColor = Color.YellowGreen;
+            dataGridViewCellStyle6.Font = new Font("Microsoft Sans Serif", 8.25F, FontStyle.Bold, GraphicsUnit.Point);
+            dataGridViewCellStyle6.ForeColor = Color.FromArgb(224, 224, 224);
+            dataGridViewCellStyle6.Padding = new Padding(1);
+            dataGridViewCellStyle6.SelectionBackColor = Color.Black;
+            dataGridViewCellStyle6.SelectionForeColor = Color.FromArgb(224, 224, 224);
+            qtn.DefaultCellStyle = dataGridViewCellStyle6;
             qtn.FillWeight = 120F;
             qtn.HeaderText = "كام واحد";
             qtn.Name = "qtn";
@@ -223,83 +235,50 @@ namespace Grossery
             Column1.FillWeight = 120F;
             Column1.HeaderText = "الاجمالى";
             Column1.Name = "Column1";
-            Column1.ReadOnly = true;
             // 
             // colRemove
             // 
-            dataGridViewCellStyle6.Alignment = DataGridViewContentAlignment.MiddleCenter;
-            dataGridViewCellStyle6.BackColor = Color.Silver;
-            dataGridViewCellStyle6.Font = new Font("Microsoft Sans Serif", 14.25F, FontStyle.Bold, GraphicsUnit.Point);
-            dataGridViewCellStyle6.ForeColor = Color.Red;
-            dataGridViewCellStyle6.Padding = new Padding(2);
-            colRemove.DefaultCellStyle = dataGridViewCellStyle6;
-            colRemove.HeaderText = "";
+            dataGridViewCellStyle7.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle7.BackColor = Color.Red;
+            dataGridViewCellStyle7.Font = new Font("Microsoft Sans Serif", 14.25F, FontStyle.Bold, GraphicsUnit.Point);
+            dataGridViewCellStyle7.ForeColor = Color.White;
+            dataGridViewCellStyle7.Padding = new Padding(2);
+            dataGridViewCellStyle7.SelectionBackColor = Color.Red;
+            dataGridViewCellStyle7.SelectionForeColor = Color.White;
+            colRemove.DefaultCellStyle = dataGridViewCellStyle7;
+            colRemove.FlatStyle = FlatStyle.Flat;
+            colRemove.HeaderText = "أحذف";
             colRemove.Name = "colRemove";
             colRemove.Text = "✖";
             colRemove.UseColumnTextForButtonValue = true;
-            colRemove.Width = 46;
+            colRemove.Width = 67;
             // 
             // tableLayoutPanel2
             // 
-            tableLayoutPanel2.ColumnCount = 7;
-            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 15.447154F));
-            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 22.7642269F));
-            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 17.0731716F));
-            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 23.5772362F));
-            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 21.1382122F));
-            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 201F));
-            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 248F));
-            tableLayoutPanel2.Controls.Add(textBox3, 0, 0);
-            tableLayoutPanel2.Controls.Add(label3, 0, 0);
-            tableLayoutPanel2.Controls.Add(label4, 5, 0);
-            tableLayoutPanel2.Controls.Add(lblTotal2, 6, 0);
-            tableLayoutPanel2.Controls.Add(label6, 2, 0);
-            tableLayoutPanel2.Controls.Add(textBox2, 3, 0);
+            tableLayoutPanel2.ColumnCount = 2;
+            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 295F));
+            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 886F));
+            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 20F));
+            tableLayoutPanel2.Controls.Add(label4, 0, 0);
+            tableLayoutPanel2.Controls.Add(lblTotal2, 1, 0);
             tableLayoutPanel2.Dock = DockStyle.Fill;
-            tableLayoutPanel2.Location = new Point(3, 687);
+            tableLayoutPanel2.Location = new Point(3, 606);
             tableLayoutPanel2.Name = "tableLayoutPanel2";
             tableLayoutPanel2.RowCount = 1;
             tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-            tableLayoutPanel2.Size = new Size(1189, 41);
+            tableLayoutPanel2.Size = new Size(1189, 122);
             tableLayoutPanel2.TabIndex = 18;
-            // 
-            // textBox3
-            // 
-            textBox3.BackColor = Color.Green;
-            textBox3.Dock = DockStyle.Top;
-            textBox3.Font = new Font("Segoe UI", 18F, FontStyle.Bold, GraphicsUnit.Point);
-            textBox3.ForeColor = Color.White;
-            textBox3.Location = new Point(907, 10);
-            textBox3.Margin = new Padding(0, 10, 0, 0);
-            textBox3.Name = "textBox3";
-            textBox3.Size = new Size(168, 39);
-            textBox3.TabIndex = 10;
-            textBox3.TextAlign = HorizontalAlignment.Center;
-            // 
-            // label3
-            // 
-            label3.AutoSize = true;
-            label3.BackColor = Color.Green;
-            label3.Dock = DockStyle.Fill;
-            label3.Font = new Font("Segoe UI", 15.75F, FontStyle.Bold, GraphicsUnit.Point);
-            label3.Location = new Point(1078, 0);
-            label3.Name = "label3";
-            label3.Size = new Size(108, 41);
-            label3.TabIndex = 0;
-            label3.Text = "ضيف";
-            label3.TextAlign = ContentAlignment.MiddleCenter;
-            label3.Click += label3_Click;
             // 
             // label4
             // 
             label4.AutoSize = true;
             label4.BackColor = Color.Blue;
             label4.Dock = DockStyle.Fill;
-            label4.Font = new Font("Segoe UI", 15.75F, FontStyle.Bold, GraphicsUnit.Point);
+            label4.Font = new Font("Segoe UI", 27.75F, FontStyle.Bold, GraphicsUnit.Point);
             label4.ForeColor = SystemColors.ButtonHighlight;
-            label4.Location = new Point(253, 0);
+            label4.Location = new Point(897, 0);
             label4.Name = "label4";
-            label4.Size = new Size(195, 41);
+            label4.Size = new Size(289, 122);
             label4.TabIndex = 6;
             label4.Text = "الحساب";
             label4.TextAlign = ContentAlignment.MiddleCenter;
@@ -309,51 +288,13 @@ namespace Grossery
             lblTotal2.AutoSize = true;
             lblTotal2.BackColor = Color.Navy;
             lblTotal2.Dock = DockStyle.Fill;
-            lblTotal2.Font = new Font("Segoe UI", 15.75F, FontStyle.Bold, GraphicsUnit.Point);
+            lblTotal2.Font = new Font("Segoe UI", 27.75F, FontStyle.Bold, GraphicsUnit.Point);
             lblTotal2.ForeColor = Color.White;
             lblTotal2.Location = new Point(3, 0);
             lblTotal2.Name = "lblTotal2";
-            lblTotal2.Size = new Size(244, 41);
+            lblTotal2.Size = new Size(888, 122);
             lblTotal2.TabIndex = 7;
             lblTotal2.TextAlign = ContentAlignment.MiddleCenter;
-            // 
-            // label6
-            // 
-            label6.AutoSize = true;
-            label6.BackColor = Color.Maroon;
-            label6.Dock = DockStyle.Fill;
-            label6.Font = new Font("Segoe UI", 15.75F, FontStyle.Bold, GraphicsUnit.Point);
-            label6.ForeColor = Color.White;
-            label6.Location = new Point(784, 0);
-            label6.Name = "label6";
-            label6.Size = new Size(120, 41);
-            label6.TabIndex = 9;
-            label6.Text = "شيل";
-            label6.TextAlign = ContentAlignment.MiddleCenter;
-            label6.Click += label6_Click;
-            // 
-            // textBox2
-            // 
-            textBox2.BackColor = Color.Maroon;
-            textBox2.Dock = DockStyle.Top;
-            textBox2.Font = new Font("Segoe UI", 18F, FontStyle.Bold, GraphicsUnit.Point);
-            textBox2.ForeColor = Color.White;
-            textBox2.Location = new Point(607, 10);
-            textBox2.Margin = new Padding(0, 10, 0, 0);
-            textBox2.Name = "textBox2";
-            textBox2.Size = new Size(174, 39);
-            textBox2.TabIndex = 5;
-            textBox2.TextAlign = HorizontalAlignment.Center;
-            // 
-            // tabPage2
-            // 
-            tabPage2.Location = new Point(4, 34);
-            tabPage2.Name = "tabPage2";
-            tabPage2.Padding = new Padding(3);
-            tabPage2.Size = new Size(1201, 737);
-            tabPage2.TabIndex = 1;
-            tabPage2.Text = "tabPage2";
-            tabPage2.UseVisualStyleBackColor = true;
             // 
             // tableLayoutPanel3
             // 
@@ -493,8 +434,7 @@ namespace Grossery
             // 
             ClientSize = new Size(1209, 775);
             Controls.Add(tabControl1);
-            Font = new Font("Segoe UI", 14F, FontStyle.Regular, GraphicsUnit.Point);
-            Name = "Form1";
+            Font = new Font("Segoe UI", 18F, FontStyle.Regular, GraphicsUnit.Point);
             RightToLeft = RightToLeft.Yes;
             RightToLeftLayout = true;
             StartPosition = FormStartPosition.CenterScreen;
@@ -517,13 +457,6 @@ namespace Grossery
 
         private TableLayoutPanel tableLayoutPanel1;
         private DataGridView dataGridView1;
-        private DataGridViewTextBoxColumn index;
-        private DataGridViewTextBoxColumn barcode;
-        private DataGridViewTextBoxColumn Name;
-        private DataGridViewTextBoxColumn qtn;
-        private DataGridViewTextBoxColumn price;
-        private DataGridViewTextBoxColumn Column1;
-        private DataGridViewButtonColumn colRemove;
         private TableLayoutPanel tableLayoutPanel2;
         private TableLayoutPanel tableLayoutPanel3;
         private Label label1;
@@ -535,11 +468,15 @@ namespace Grossery
         private TableLayoutPanel tableLayoutPanel17;
         private TextBox textBox7;
         private Label label8;
-        private Label label3;
-        private TextBox textBox2;
         private Label label4;
         private Label lblTotal2;
-        private TextBox textBox3;
-        private Label label6;
+        private DataGridViewTextBoxColumn index;
+        private DataGridViewTextBoxColumn barcode;
+        private DataGridViewTextBoxColumn Name;
+        private DataGridViewButtonColumn colRemoveStart;
+        private DataGridViewTextBoxColumn qtn;
+        private DataGridViewTextBoxColumn price;
+        private DataGridViewTextBoxColumn Column1;
+        private DataGridViewButtonColumn colRemove;
     }
 }
